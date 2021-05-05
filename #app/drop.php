@@ -8,6 +8,7 @@ if (!check_drop_name($d)) {
   header("Location: ./");
   exit();
 }
+create_drop($d);
 
 ?><!DOCTYPE html>
 <html>

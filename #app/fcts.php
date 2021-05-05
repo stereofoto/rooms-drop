@@ -58,6 +58,20 @@ function auth_requiered($force=false) {
     askpass($realm);
 }
 
+function create_drop($d) {
+  $target_dir = "#uploads/".$d."/";
+  if (!is_dir($target_dir)) {
+    mkdir($target_dir);
+    file_put_contents($target_dir.'/date.txt', time());
+    file_put_contents($target_dir.'/list.json', '{
+	"media": [],
+	"meta": {
+		"url_base": "https://rooms-drop.stereopix.repl.co/"
+	}
+}');
+  }
+}
+
 function remove_drop($d) {
   if (!check_drop_name($d)) return;
   array_map('unlink', glob("#uploads/$d/*"));

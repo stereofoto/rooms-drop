@@ -13,10 +13,7 @@ if ($_FILES["file"] ?? false && $_FILES["file"]["error"] == 0) {
   $target_file = $target_dir . basename($_FILES["file"]["name"]);
   $check = getimagesize($_FILES["file"]["tmp_name"]);
   if($check !== false) {
-    if (!is_dir($target_dir)) {
-      mkdir($target_dir);
-      file_put_contents($target_dir.'/date.txt', time());
-    }
+    if (!is_dir($target_dir)) create_drop($d);
     move_uploaded_file( $_FILES['file']['tmp_name'], $target_file);
   } else {
     header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
