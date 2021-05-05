@@ -34,7 +34,7 @@ function upload() {
 
     photos_list[i].uploading = true;
     current_xhr = new XMLHttpRequest();
-    current_xhr.open('POST', './', true);
+    current_xhr.open('POST', './?action=upload', true);
     current_xhr.upload.addEventListener("progress", e => {
       photos_list[i].bar.style.width = ((e.loaded * 100.0 / e.total) || 100) + '%';
     });
