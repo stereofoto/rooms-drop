@@ -9,7 +9,7 @@ if (!check_drop_name($d)) {
 }
 
 $target_dir = "#uploads/".$d."/";
-if ($_FILES["file"] ?? false) {
+if ($_FILES["file"] ?? false && $_FILES["file"]["error"] == 0) {
   $target_file = $target_dir . basename($_FILES["file"]["name"]);
   $check = getimagesize($_FILES["file"]["tmp_name"]);
   if($check !== false) {

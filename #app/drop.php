@@ -47,6 +47,7 @@ function upload() {
       else if (current_xhr.readyState == 4 && current_xhr.status != 200) {
         current_xhr = null;
         photos_list[i].uploading = false;
+	photos_list[i].bar.style.width = "0%";
       }
     });
     current_xhr.send(formData);
