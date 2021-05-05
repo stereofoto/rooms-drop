@@ -10,7 +10,7 @@ Storage limit in seconds
 
 The deletion is actually performed when someone visits the page after this delay.
 */
-$CONFIG_STORAGE_TIME = 5 * 60 * 60;
+$CONFIG_STORAGE_TIME = 3 * 24 * 60 * 60;
 
 /*
 Should the app show the storage bar
