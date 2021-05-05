@@ -46,12 +46,23 @@ a {
   background: #ff9;
   border-style: solid;
 }
-.photos_line>* {
-  vertical-align: middle;
+.photos_line {
+  border: 2px solid #999;
+  border-radius: 10px;
+  padding: 10px;
+  width: 90%;
+  margin: 0 auto;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  background-color: #fafafa;
+  color: #000;
 }
-#btn_update {
-  display: none;
+.photos_line div {
+  flex: 1;
 }
-#btn_update.show {
-  display: inline;
+.photos_line hr {
+  width: 50%;
 }

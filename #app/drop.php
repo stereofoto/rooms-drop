@@ -48,7 +48,7 @@ function upload() {
       else if (current_xhr.readyState == 4 && current_xhr.status != 200) {
         current_xhr = null;
         photos_list[i].uploading = false;
-	photos_list[i].bar.style.width = "0%";
+        photos_list[i].bar.style.width = "0%";
       }
     });
     current_xhr.send(formData);
@@ -62,6 +62,8 @@ function upload() {
       if (photos_list[i].url) p.url = photos_list[i].url;
       if (photos_list[i].swapped) p.swapped = true;
       if (photos_list[i].phantogram) p.phantogram = true;
+      p.preset = photos_list[i].preset;
+      p.projection = photos_list[i].projection;
       json.media.push(p);
     }
     current_xhr = new XMLHttpRequest();
@@ -81,9 +83,9 @@ function upload() {
     current_xhr.send(formData);
   }
 }
-function photoline(i, f, p, swapped, phantogram) {
-  const div = document.createElement("div");
-  div.classList.add("photos_line");
+function photoline(i, f, p, o) {
+  const div_line = document.createElement("div");
+  div_line.classList.add("photos_line");
   const spanbarout = document.createElement("span");
   spanbarout.classList.add("gauge");
   const spanbarin = document.createElement("span");
@@ -91,8 +93,11 @@ function photoline(i, f, p, swapped, phantogram) {
   spanbarout.appendChild(spanbarin);
   const img = document.createElement("img");
   img.width = "300";
+  const div = document.createElement("div");
+  div_line.appendChild(img);
+  div_line.appendChild(div);
   div.appendChild(spanbarout);
-  div.appendChild(img);
+  div.appendChild(document.createElement("br"));
   if (f instanceof File) {
     const reader = new FileReader();
     reader.readAsDataURL(f);
@@ -102,32 +107,76 @@ function photoline(i, f, p, swapped, phantogram) {
   } else {
     img.src = f;
   }
-  photos.appendChild(div);
+  photos.appendChild(div_line);
+
   const label_swapped = document.createElement("label");
   const chk_swapped = document.createElement("input");
   chk_swapped.type = "checkbox";
-  if (swapped) chk_swapped.checked = true;
+  if (o.swapped) chk_swapped.checked = true;
   chk_swapped.setAttribute("data-i", i);
   chk_swapped.onchange = e => {
     photos_list[chk_swapped.getAttribute("data-i")].swapped = chk_swapped.checked;
   };
   label_swapped.appendChild(chk_swapped);
-  label_swapped.appendChild(document.createTextNode("cross"));
+  label_swapped.appendChild(document.createTextNode(" Swapped"));
   div.appendChild(label_swapped);
+
+  div.appendChild(document.createElement("br"));
+
   const label_phantogram = document.createElement("label");
   const chk_phantogram = document.createElement("input");
   chk_phantogram.type = "checkbox";
-  if (phantogram) chk_phantogram.checked = true;
+  if (o.phantogram) chk_phantogram.checked = true;
   chk_phantogram.setAttribute("data-i", i);
   chk_phantogram.onchange = e => {
     photos_list[chk_phantogram.getAttribute("data-i")].phantogram = chk_phantogram.checked;
   };
   label_phantogram.appendChild(chk_phantogram);
-  label_phantogram.appendChild(document.createTextNode("phantogram"));
+  label_phantogram.appendChild(document.createTextNode(" Phantogram"));
   div.appendChild(label_phantogram);
-  const btn = document.createElement("button");
-  btn.value = "Delete";
-  btn.onclick = upload;
+
+  div.appendChild(document.createElement("hr"));
+
+  const rnd = Math.random().toString(36).slice(-7);
+  const preset_labels = ["Monoscopic", "Parallel side-by-side", "Squeezed parallel side-by-side", "Cross side-by-side", "Squeezed cross side-by-side", "Top-and-bottom", "Squeezed top-and-bottom"];
+  const preset_values = ["mono", "sbs", "hsbs", "rl", "hrl", "tab", "htab"];
+  for (let pi = 0; pi < preset_labels.length; pi++) {
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.value = preset_values[pi];
+    if (o.preset == radio.value) radio.checked = true;
+    radio.setAttribute("data-i", i);
+    radio.name = "preset_" + rnd;
+    radio.onchange = e => {
+      photos_list[radio.getAttribute("data-i")].preset = radio.value;
+    };
+    label.appendChild(radio);
+    label.appendChild(document.createTextNode(" "+preset_labels[pi]));
+    div.appendChild(label);
+    div.appendChild(document.createElement("br"));
+  }
+
+  div.appendChild(document.createElement("hr"));
+
+  const projection_labels = ["Rectilinear", "VR180", "VR360"];
+  const projection_values = ["rectilinear", "vr180", "vr360"];
+  for (let pi = 0; pi < projection_labels.length; pi++) {
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.value = projection_values[pi];
+    if (o.projection == radio.value) radio.checked = true;
+    radio.setAttribute("data-i", i);
+    radio.name = "projection_" + rnd;
+    radio.onchange = e => {
+      photos_list[radio.getAttribute("data-i")].projection = radio.value;
+    };
+    label.appendChild(radio);
+    label.appendChild(document.createTextNode(" "+projection_labels[pi]));
+    div.appendChild(label);
+    div.appendChild(document.createElement("br"));
+  }
 
   return spanbarin;
 }
@@ -144,7 +193,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
     input.readOnly = true;
     input.value = url;
     url_info.appendChild(input);
-    
+
     current_xhr = new XMLHttpRequest();
     current_xhr.open('GET', url, true);
     current_xhr.addEventListener('readystatechange', e => {
@@ -153,18 +202,21 @@ window.addEventListener("DOMContentLoaded", (event) => {
         current_xhr = null;
         let i = 0;
         json.media.forEach(p => {
-          const spanbarin = photoline(i, p.url, 100, p.swapped, p.phantogram);
-          i += 1;
-          photos_list.push({
+          const pli = {
             "file": null,
             "filename": p.url,
             "url": p.url,
-            "bar": spanbarin,
+            "bar": null,
+            "preset": p.preset,
+            "projection": p.projection,
             "swapped": p.swapped,
             "phantogram": p.phantogram,
             "uploading": false,
             "uploaded": true,
-          });
+          };
+          pli.bar = photoline(i, p.url, 100, pli);
+          photos_list.push(pli);
+          i += 1;
         });
         document.getElementById("btn_update").classList.add("show");
         document.getElementById("btn_update").onclick = upload;
@@ -207,16 +259,19 @@ window.addEventListener("DOMContentLoaded", (event) => {
     const files = e.dataTransfer.files;
     for (let i = 0; i < files.length; i++) {
       const f = files[i];
-      const spanbarin = photoline(i, f, 0, false, false);
-      photos_list.push({
+      const pli = {
         "file": f,
         "filename": f.name,
-        "bar": spanbarin,
+        "bar": null,
         "swapped": false,
         "phantogram": false,
+        "preset": "sbs",
+        "projection": "rectilinear",
         "uploading": false,
         "uploaded": false,
-      });
+      };
+      pli.bar = photoline(i, f, 0, pli);
+      photos_list.push(pli);
     }
     document.getElementById("btn_update").classList.add("show");
     document.getElementById("btn_update").onclick = upload;
