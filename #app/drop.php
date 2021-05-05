@@ -228,7 +228,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
   <body>
     <h1><a href="./">«</a> ROOMS drop</h1>
     <p id="url_info"></p>
-    <div id="drop">DROP PHOTOS HERE</div>
+    <div id="drop">DROP PHOTOS HERE (max <?php echo ini_get("upload_max_filesize").'B'; ?>)</div>
     <div id="photos"></div>
     <p><input id="btn_update" type="button" value="Update" /></p>
     <p><input id="btn_delete" type="button" value="Delete this drop" /></p>
