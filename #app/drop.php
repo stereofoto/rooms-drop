@@ -86,6 +86,8 @@ function upload() {
 function photoline(i, f, p, o) {
   const div_line = document.createElement("div");
   div_line.classList.add("photos_line");
+  div_line.dataset.i = i;
+  o.div_line = div_line;
   const spanbarout = document.createElement("span");
   spanbarout.classList.add("gauge");
   const spanbarin = document.createElement("span");
@@ -113,9 +115,8 @@ function photoline(i, f, p, o) {
   const chk_swapped = document.createElement("input");
   chk_swapped.type = "checkbox";
   if (o.swapped) chk_swapped.checked = true;
-  chk_swapped.setAttribute("data-i", i);
   chk_swapped.onchange = e => {
-    photos_list[chk_swapped.getAttribute("data-i")].swapped = chk_swapped.checked;
+    photos_list[div_line.dataset.i].swapped = chk_swapped.checked;
   };
   label_swapped.appendChild(chk_swapped);
   label_swapped.appendChild(document.createTextNode(" Swapped"));
@@ -127,9 +128,8 @@ function photoline(i, f, p, o) {
   const chk_phantogram = document.createElement("input");
   chk_phantogram.type = "checkbox";
   if (o.phantogram) chk_phantogram.checked = true;
-  chk_phantogram.setAttribute("data-i", i);
   chk_phantogram.onchange = e => {
-    photos_list[chk_phantogram.getAttribute("data-i")].phantogram = chk_phantogram.checked;
+    photos_list[div_line.dataset.i].phantogram = chk_phantogram.checked;
   };
   label_phantogram.appendChild(chk_phantogram);
   label_phantogram.appendChild(document.createTextNode(" Phantogram"));
@@ -146,10 +146,9 @@ function photoline(i, f, p, o) {
     radio.type = "radio";
     radio.value = preset_values[pi];
     if (o.preset == radio.value) radio.checked = true;
-    radio.setAttribute("data-i", i);
     radio.name = "preset_" + rnd;
     radio.onchange = e => {
-      photos_list[radio.getAttribute("data-i")].preset = radio.value;
+      photos_list[div_line.dataset.i].preset = radio.value;
     };
     label.appendChild(radio);
     label.appendChild(document.createTextNode(" "+preset_labels[pi]));
@@ -167,10 +166,9 @@ function photoline(i, f, p, o) {
     radio.type = "radio";
     radio.value = projection_values[pi];
     if (o.projection == radio.value) radio.checked = true;
-    radio.setAttribute("data-i", i);
     radio.name = "projection_" + rnd;
     radio.onchange = e => {
-      photos_list[radio.getAttribute("data-i")].projection = radio.value;
+      photos_list[div_line.dataset.i].projection = radio.value;
     };
     label.appendChild(radio);
     label.appendChild(document.createTextNode(" "+projection_labels[pi]));
