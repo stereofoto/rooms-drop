@@ -197,6 +197,27 @@ function photoline(i, f, p, o) {
   };
   div_right.appendChild(img_up);
   div_right.appendChild(document.createElement("br"));
+  const img_del = document.createElement("img");
+  img_del.src = "del.png";
+  img_del.onclick = () => {
+    const id = div_line.dataset.i;
+    const fname = photos_list[id].filename;
+    photos_list[id].div_line.remove();
+    photos_list.splice(id, 1);
+    let ii = 0;
+    let delfile = true;
+    photos_list.forEach(e => {
+      e.div_line.dataset.i = ii++
+      if (e.filename == fname) delfile = false;
+    });
+    if (delfile) {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', './?action=delete&d='+drop_name+'&f='+fname, true);
+      xhr.send(null);
+    }
+  };
+  div_right.appendChild(img_del);
+  div_right.appendChild(document.createElement("br"));
   const img_down = document.createElement("img");
   img_down.src = "down.png";
   img_down.onclick = () => {
@@ -290,6 +311,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
   drop.addEventListener("drop", e => {
     uhl(e);
     const files = e.dataTransfer.files;
+    const initi = photos_list.length;
     for (let i = 0; i < files.length; i++) {
       const f = files[i];
       const pli = {
@@ -303,7 +325,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
         "uploading": false,
         "uploaded": false,
       };
-      pli.bar = photoline(i, f, 0, pli);
+      pli.bar = photoline(initi+i, f, 0, pli);
       photos_list.push(pli);
     }
     document.getElementById("btn_update").classList.add("show");
