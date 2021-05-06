@@ -7,14 +7,15 @@ function not_uploaded() {
 }
 
 $d = $_POST['drop'] ?? false;
-if (!check_drop_name($d)) not_uploaded();
+$k = $_POST['key'] ?? false;
+if (!check_drop_name($d) || !check_key($d, $k)) not_uploaded();
 
 $target_dir = "#uploads/".$d."/";
 if (($_FILES["file"] ?? false) && $_FILES["file"]["error"] == 0) {
   $target_file = $target_dir . basename($_FILES["file"]["name"]);
   $check = getimagesize($_FILES["file"]["tmp_name"]);
   if($check !== false) {
-    if (!is_dir($target_dir)) create_drop($d);
+    if (!is_dir($target_dir)) create_drop($d, $k);
     move_uploaded_file( $_FILES['file']['tmp_name'], $target_file);
   } else {
     not_uploaded();

@@ -3,7 +3,8 @@
 auth_requiered();
 
 $d = $_GET['d'] ?? false;
-if (!check_drop_name($d)) {
+$k = $_GET['k'] ?? false;
+if (!check_drop_name($d) || !check_key($d, $k)) {
   header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
   exit();
 }

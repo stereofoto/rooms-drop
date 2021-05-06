@@ -4,11 +4,16 @@ clean_uploads();
 auth_requiered();
 
 $d = $_GET['d'] ?? false;
+$k = $_GET['k'] ?? false;
 if (!check_drop_name($d)) {
   header("Location: ./");
   exit();
 }
-create_drop($d);
+create_drop($d, $k);
+if (!check_key($d, $k)) {
+  header("Location: ./");
+  exit();
+}
 
 ?><!DOCTYPE html>
 <html>
@@ -20,6 +25,7 @@ create_drop($d);
 const photos_list = [];
 let current_xhr = null;
 let drop_name = "<?php echo $d; ?>";
+let key = "<?php echo $k; ?>";
 let update_timer = false;
 function autoupdate_apply() {
   if (current_xhr) {
@@ -55,6 +61,7 @@ function autoupdate_apply() {
   const formData = new FormData()
   formData.append('json', JSON.stringify(json, null, '\t'));
   formData.append('drop', drop_name);
+  formData.append('key', key);
   formData.append('action', 'upload');
   if (document.visibilityState === 'hidden') navigator.sendBeacon('./', formData);
   else current_xhr.send(formData);
@@ -74,6 +81,7 @@ function upload() {
     const formData = new FormData()
     formData.append('file', photos_list[i].file);
     formData.append('drop', drop_name);
+    formData.append('key', key);
     formData.append('action', 'upload');
 
     photos_list[i].uploading = true;
@@ -234,7 +242,7 @@ function photoline(i, f, p, o) {
     });
     if (delfile) {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', './?action=delete&d='+drop_name+'&f='+fname, true);
+      xhr.open('POST', './?action=delete&d='+drop_name+'&k='+key+'&f='+fname, true);
       xhr.send(null);
     }
     autoupdate();
@@ -264,6 +272,12 @@ window.addEventListener("DOMContentLoaded", (event) => {
   const drop = document.getElementById("drop");
 
   {
+    const url_view = new URL("./?d="+drop_name, document.location);
+    const a_view = document.createElement('a');
+    a_view.href = url_view;
+    a_view.target = "_blank";
+    a_view.textContent = url_view;
+    url_info.appendChild(a_view);
     const url = new URL("./?d="+drop_name+"&f=list.json", document.location);
     const input = document.createElement("input");
     input.id = "json_url";
@@ -312,9 +326,9 @@ window.addEventListener("DOMContentLoaded", (event) => {
     } catch (JSONError) {
       list = []
     }
-    list = list.filter(item => item !== drop_name);
+    list = list.filter(item => JSON.stringify(item) !== JSON.stringify({"d": drop_name, "k": key}));
     localStorage.setItem('drops_list', JSON.stringify(list));
-    document.location = "./?action=delete&d="+drop_name;
+    document.location = "./?action=delete&d="+drop_name+"&k="+key;
   }
 
   const hl = e => {

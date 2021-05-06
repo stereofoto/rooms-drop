@@ -7,8 +7,10 @@ if ($action == 'none') {
   if ($_GET['d'] ?? false) {
     if ($_GET['f'] ?? false) {
       include('file.php');
-    } else {
+    } else if ($_GET['k'] ?? false) {
       include('drop.php');
+    } else {
+      include('view.php');
     }
   } else {
     include('frontpage.php');

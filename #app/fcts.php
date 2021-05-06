@@ -20,6 +20,10 @@ function time2str($seconds) {
 function check_drop_name($d) {
   return $d && preg_match("/^[a-zA-Z0-9]+$/", $d);
 }
+function check_key($d, $k) {
+  if (!check_drop_name($d)) return false;
+  return file_get_contents("#uploads/".$d."/key.txt") == $k;
+}
 
 function auth_requiered($force=false) {
   global $CONFIG_AUTH;
@@ -58,11 +62,12 @@ function auth_requiered($force=false) {
     askpass($realm);
 }
 
-function create_drop($d) {
+function create_drop($d, $k) {
   $target_dir = "#uploads/".$d."/";
   if (!is_dir($target_dir)) {
     mkdir($target_dir);
     file_put_contents($target_dir.'/date.txt', time());
+    file_put_contents($target_dir.'/key.txt', $k);
     file_put_contents($target_dir.'/list.json', '{
 	"media": [],
 	"meta": {
