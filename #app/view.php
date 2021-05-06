@@ -29,6 +29,7 @@ if (!check_drop_name($d)) {
               if (xhr.readyState == 4 && xhr.status == 200) {
                 var json = JSON.parse(xhr.responseText);
                 e.source.postMessage({'stereopix_action': 'list_add_json', 'media': json}, 'https://stereopix.net');
+                e.source.focus();
               }
             };
             xhr.send(null);
