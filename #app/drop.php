@@ -95,8 +95,12 @@ function photoline(i, f, p, o) {
   spanbarout.appendChild(spanbarin);
   const img = document.createElement("img");
   img.width = "300";
+  const div_left = document.createElement("div");
+  div_left.classList.add("flex1");
+  div_line.appendChild(div_left);
+  div_left.appendChild(img);
   const div = document.createElement("div");
-  div_line.appendChild(img);
+  div.classList.add("flex2");
   div_line.appendChild(div);
   div.appendChild(spanbarout);
   div.appendChild(document.createElement("br"));
@@ -175,6 +179,37 @@ function photoline(i, f, p, o) {
     div.appendChild(label);
     div.appendChild(document.createElement("br"));
   }
+
+  const div_right = document.createElement("div");
+  div_right.classList.add("flex1");
+  div_line.appendChild(div_right);
+  const img_up = document.createElement("img");
+  img_up.src = "up.png";
+  img_up.onclick = () => {
+    const id = div_line.dataset.i;
+    if (id <= 0) return;
+    photos_list[id].div_line.parentNode.insertBefore(photos_list[id].div_line, photos_list[id-1].div_line);
+    photos_list[id].div_line.dataset.i = id-1;
+    photos_list[id-1].div_line.dataset.i = id;
+    const tmp = photos_list[id]
+    photos_list[id] = photos_list[id-1]
+    photos_list[id-1] = tmp;
+  };
+  div_right.appendChild(img_up);
+  div_right.appendChild(document.createElement("br"));
+  const img_down = document.createElement("img");
+  img_down.src = "down.png";
+  img_down.onclick = () => {
+    const id = div_line.dataset.i-0;
+    if (id >= photos_list.length-1) return;
+    photos_list[id+1].div_line.parentNode.insertBefore(photos_list[id+1].div_line, photos_list[id].div_line);
+    photos_list[id].div_line.dataset.i = id+1;
+    photos_list[id+1].div_line.dataset.i = id;
+    const tmp = photos_list[id]
+    photos_list[id] = photos_list[id+1]
+    photos_list[id+1] = tmp;
+  };
+  div_right.appendChild(img_down);
 
   return spanbarin;
 }

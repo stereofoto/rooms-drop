@@ -60,9 +60,15 @@ a {
   background-color: #fafafa;
   color: #000;
 }
-.photos_line div {
+.flex1 {
   flex: 1;
+}
+.flex2 {
+  flex: 2;
 }
 .photos_line hr {
   width: 50%;
+}
+.photos_line img {
+  max-width: 100%;
 }
