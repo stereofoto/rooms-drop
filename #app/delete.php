@@ -8,7 +8,13 @@ if (!check_drop_name($d)) {
   exit();
 }
 
-remove_drop($d);
-header("Location: ./");
+$f = $_GET['f'] ?? false;
+if ($f) {
+  $file = "#uploads/".$d."/".basename($f);
+  unlink($file);
+} else {
+  remove_drop($d);
+  header("Location: ./");
+}
 
 ?>
