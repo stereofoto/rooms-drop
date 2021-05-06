@@ -20,6 +20,50 @@ create_drop($d);
 const photos_list = [];
 let current_xhr = null;
 let drop_name = "<?php echo $d; ?>";
+let update_timer = false;
+function autoupdate_apply() {
+  if (current_xhr) {
+    autoupdate();
+    return;
+  }
+  if (update_timer) clearTimeout(update_timer);
+  update_timer = false;
+  const json = {
+    "media": [],
+    "meta": { "url_base": (new URL("./", document.location)).href }
+  };
+  for (let i = 0; i < photos_list.length; i++) {
+    if (!photos_list[i].uploaded) continue;
+    const p = { "url": "?d="+drop_name+"&f="+encodeURIComponent(photos_list[i].filename) };
+    if (photos_list[i].url) p.url = photos_list[i].url;
+    if (photos_list[i].swapped) p.swapped = true;
+    if (photos_list[i].phantogram) p.phantogram = true;
+    if (photos_list[i].preset != 'sbs') p.preset = photos_list[i].preset;
+    if (photos_list[i].projection != 'rectilinear') p.projection = photos_list[i].projection;
+    json.media.push(p);
+  }
+  current_xhr = new XMLHttpRequest();
+  current_xhr.open('POST', './', true);
+  current_xhr.addEventListener('readystatechange', e => {
+    if (current_xhr.readyState == 4 && current_xhr.status == 200) {
+      current_xhr = null;
+    }
+    else if (current_xhr.readyState == 4 && current_xhr.status != 200) {
+      current_xhr = null;
+    }
+  });
+  const formData = new FormData()
+  formData.append('json', JSON.stringify(json, null, '\t'));
+  formData.append('drop', drop_name);
+  formData.append('action', 'upload');
+  if (document.visibilityState === 'hidden') navigator.sendBeacon('./', formData);
+  else current_xhr.send(formData);
+}
+window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && update_timer) autoupdate_apply(); });
+function autoupdate() {
+  if (update_timer) clearTimeout(update_timer);
+  update_timer = setTimeout(autoupdate_apply, 3000);
+}
 function upload() {
   if (current_xhr) return;
   let i;
@@ -53,34 +97,7 @@ function upload() {
     });
     current_xhr.send(formData);
   } else {
-    const json = {
-      "media": [],
-      "meta": { "url_base": (new URL("./", document.location)).href }
-    };
-    for (let i = 0; i < photos_list.length; i++) {
-      const p = { "url": "?d="+drop_name+"&f="+encodeURIComponent(photos_list[i].filename) };
-      if (photos_list[i].url) p.url = photos_list[i].url;
-      if (photos_list[i].swapped) p.swapped = true;
-      if (photos_list[i].phantogram) p.phantogram = true;
-      p.preset = photos_list[i].preset;
-      p.projection = photos_list[i].projection;
-      json.media.push(p);
-    }
-    current_xhr = new XMLHttpRequest();
-    current_xhr.open('POST', './', true);
-    current_xhr.addEventListener('readystatechange', e => {
-      if (current_xhr.readyState == 4 && current_xhr.status == 200) {
-        current_xhr = null;
-      }
-      else if (current_xhr.readyState == 4 && current_xhr.status != 200) {
-        current_xhr = null;
-      }
-    });
-    const formData = new FormData()
-    formData.append('json', JSON.stringify(json, null, '\t'));
-    formData.append('drop', drop_name);
-    formData.append('action', 'upload');
-    current_xhr.send(formData);
+    autoupdate_apply();
   }
 }
 function photoline(i, f, p, o) {
@@ -121,6 +138,7 @@ function photoline(i, f, p, o) {
   if (o.swapped) chk_swapped.checked = true;
   chk_swapped.onchange = e => {
     photos_list[div_line.dataset.i].swapped = chk_swapped.checked;
+    autoupdate();
   };
   label_swapped.appendChild(chk_swapped);
   label_swapped.appendChild(document.createTextNode(" Swapped"));
@@ -134,6 +152,7 @@ function photoline(i, f, p, o) {
   if (o.phantogram) chk_phantogram.checked = true;
   chk_phantogram.onchange = e => {
     photos_list[div_line.dataset.i].phantogram = chk_phantogram.checked;
+    autoupdate();
   };
   label_phantogram.appendChild(chk_phantogram);
   label_phantogram.appendChild(document.createTextNode(" Phantogram"));
@@ -153,6 +172,7 @@ function photoline(i, f, p, o) {
     radio.name = "preset_" + rnd;
     radio.onchange = e => {
       photos_list[div_line.dataset.i].preset = radio.value;
+      autoupdate();
     };
     label.appendChild(radio);
     label.appendChild(document.createTextNode(" "+preset_labels[pi]));
@@ -173,6 +193,7 @@ function photoline(i, f, p, o) {
     radio.name = "projection_" + rnd;
     radio.onchange = e => {
       photos_list[div_line.dataset.i].projection = radio.value;
+      autoupdate();
     };
     label.appendChild(radio);
     label.appendChild(document.createTextNode(" "+projection_labels[pi]));
@@ -194,6 +215,7 @@ function photoline(i, f, p, o) {
     const tmp = photos_list[id]
     photos_list[id] = photos_list[id-1]
     photos_list[id-1] = tmp;
+    autoupdate();
   };
   div_right.appendChild(img_up);
   div_right.appendChild(document.createElement("br"));
@@ -215,6 +237,7 @@ function photoline(i, f, p, o) {
       xhr.open('POST', './?action=delete&d='+drop_name+'&f='+fname, true);
       xhr.send(null);
     }
+    autoupdate();
   };
   div_right.appendChild(img_del);
   div_right.appendChild(document.createElement("br"));
@@ -229,6 +252,7 @@ function photoline(i, f, p, o) {
     const tmp = photos_list[id]
     photos_list[id] = photos_list[id+1]
     photos_list[id+1] = tmp;
+    autoupdate();
   };
   div_right.appendChild(img_down);
 
@@ -261,8 +285,8 @@ window.addEventListener("DOMContentLoaded", (event) => {
             "filename": p.url,
             "url": p.url,
             "bar": null,
-            "preset": p.preset,
-            "projection": p.projection,
+            "preset": p.preset || "sbs",
+            "projection": p.projection || "rectilinear",
             "swapped": p.swapped,
             "phantogram": p.phantogram,
             "uploading": false,
@@ -272,8 +296,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
           photos_list.push(pli);
           i += 1;
         });
-        document.getElementById("btn_update").classList.add("show");
-        document.getElementById("btn_update").onclick = upload;
       }
       else if (current_xhr.readyState == 4 && current_xhr.status != 200) {
         current_xhr = null;
@@ -328,8 +350,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
       pli.bar = photoline(initi+i, f, 0, pli);
       photos_list.push(pli);
     }
-    document.getElementById("btn_update").classList.add("show");
-    document.getElementById("btn_update").onclick = upload;
     upload();
   }, false);
 });
@@ -340,7 +360,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
     <p id="url_info"></p>
     <div id="drop">DROP PHOTOS HERE (max <?php echo ini_get("upload_max_filesize").'B'; ?>)</div>
     <div id="photos"></div>
-    <p><input id="btn_update" type="button" value="Update" /></p>
     <p><input id="btn_delete" type="button" value="Delete this drop" /></p>
   </body>
 </html>
