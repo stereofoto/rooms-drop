@@ -16,7 +16,7 @@ if (!check_drop_name($d)) {
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <h1><a href="./">«</a> ROOMS drop</h1>
+    <h1><a href="./">Tilbake</a> Stereofoto Norge ROOMS drop</h1>
 
     <script type="text/javascript">
       var json_url = './?d=<?php echo $d; ?>&f=list.json';
