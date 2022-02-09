@@ -6,7 +6,7 @@ auth_requiered();
 ?><!DOCTYPE html>
 <html>
   <head>
-    <title>ROOMS drop</title>
+    <title>Stereofoto Norge - StereoPix rooms/drops</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="style.css" />
     <script>
@@ -46,13 +46,13 @@ window.addEventListener("DOMContentLoaded", (event) => {
     </script>
   </head>
   <body>
-    <h1>Stereofoto Norge - ROOMS drop</h1>
-    <p>This little webapp is a companion for <a href="https://rooms.stereopix.net/">https://rooms.stereopix.net/</a> to help people to host their images<?php if ($CONFIG_STORAGE_TIME) echo ' temporary'; ?>.</p>
-    <?php if ($CONFIG_SHOW_STORAGE) echo '<p>Storage: <span class="gauge"><span style="width: '.(100*disk_free_space(".")/ disk_total_space(".")).'%"></span></span></p>'; ?>
-    <?php if ($CONFIG_STORAGE_TIME) echo '<p>Maximum storage time: '.time2str($CONFIG_STORAGE_TIME).'</p>'; ?>
-    <?php if ($CONFIG_AUTH) echo '<p><a href="?action=logout">Logout</a></p>'; ?>
-    <h2>Your drops</h2>
+    <h1>Stereofoto Norge - StereoPix ROOMS drop</h1>
+    <p>Last opp og vis stereobilder med StereoPix vieweren.<?php if ($CONFIG_STORAGE_TIME) echo ' temporary'; ?>.</p>
+    <?php if ($CONFIG_SHOW_STORAGE) echo '<p>Lagring: <span class="gauge"><span style="width: '.(100*disk_free_space(".")/ disk_total_space(".")).'%"></span></span></p>'; ?>
+    <?php if ($CONFIG_STORAGE_TIME) echo '<p>Maks lagringstid: '.time2str($CONFIG_STORAGE_TIME).'</p>'; ?>
+    <?php if ($CONFIG_AUTH) echo '<p><a href="?action=logout">Logg ut</a></p>'; ?>
+    <h2>Dine "drops"</h2>
     <div id="yourdrops"></div>
-    <p><a id="adddrop" href="#">Add a drop</a></p>
+    <p><a id="adddrop" href="#">Legg til en "drop"</a></p>
   </body>
 </html>
